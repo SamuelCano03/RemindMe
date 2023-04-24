@@ -1,0 +1,279 @@
+{% extends "layouthome.html" %}
+{% block navbar %}
+<ul class="navbar-nav ms-auto">
+    <li class="nav-item">
+        <a class="nav-link text-white" href="{{ url_for('config') }}">
+          <i class="fa-solid fa-user"></i>
+          {{session['username']}}
+        </a>
+    </li>
+    <li>
+        <form class="d-flex ">
+          <a class="btn btn-danger me-3" href="{{ url_for('logout') }}">Log out</a>
+        </form>
+    </li>
+</ul>
+{% endblock %}
+{% block content %}
+<div class="d-grid gap-2 d-md-flex justify-content-end p-3">
+    <h2 class="fs-5">New task</h2>
+    <button class="btn btn-primary me-sm-2" type="button" data-bs-toggle="modal" data-bs-target="#add-modal">
+        <i class="fa-solid fa-add"></i>
+    </button>
+  <h2 class="fs-5">New tag</h2>
+  <button class="btn btn-primary me-sm-2" type="button" data-bs-toggle="modal" data-bs-target="#tag-modal">
+      <i class="fa-solid fa-add"></i>
+  </button>
+</div>
+
+{% for task in data %}
+  <div class="card text-center">
+    <div class="card-header bg-secondary mb-3">
+      {% if task[5] is not none %}
+        {% for tag in tags %}
+          {% if task[5] == tag[0] %}
+          <h4 class="fs-6">
+            {{ tag[1] }}
+          </h4>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <h4 class="fs-6">NO TAG</h4>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      <h5 class="card-title">{{task[1]}}</h5>
+      <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#task-modal-{{task[0]}}">Details</a>
+    </div>
+  </div>
+  <br>
+{% endfor %}
+
+<!-- Modal add -->
+<div class="modal fade" id="add-modal" tabindex="-1" aria-labelledby="modal-add-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="modal-add-label">Add new task</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form id="add-form" method="post" action="/addtask">
+                <div class="col-md-8" >
+                  <label for="task" class="form-label">Task</label>
+                  <input type="text" class="form-control" id="task" placeholder="Tarea" name="task" required>
+                </div>
+                <div class="col-md-8">
+                  <label for="status" class="form-label">Status</label>
+                  <select class="form-select" aria-label="Statu select" id="status-edit" name="status">
+                      <option selected>Pendiente</option>
+                      <option>En proceso</option>
+                      <option>Realizada</option>
+                  </select>
+                </div>
+                <div class="col-md-8">
+                  <label for="deadline" class="form-label">Deadline</label>
+                  <input type="date" class="form-control" id="deadline" placeholder="subtarea" name="deadline" required>
+                </div>
+                <div class="col-md-8">
+                    <label for="tag" class="form-label">Tag</label>
+                    <select class="form-select" aria-label="Tag select" id="tag" name="tag">
+                        <option selected>Select Tag</option>
+                        {% for tag in tags %}
+                        <option>{{tag[1]}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-12 pt-4" >
+                    <button type="submit" class="btn btn-primary" id="add-task">ADD</button>
+                </div>
+              </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
+<!-- Modal tag -->
+<div class="modal fade" id="tag-modal" tabindex="-1" aria-labelledby="modal-tag-label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="modal-tag-label">Add new tag</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          <form id="add-form" method="post" action="/addtag">
+              <div class="col-md-8" >
+                <label for="tagname" class="form-label">Tag</label>
+                <input type="text" class="form-control" id="tagname" placeholder="Tag" name="tagname" required>
+              </div>
+              <div class="col-md-8">
+                <label for="color" class="form-label">Color</label>
+                <input type="text" class="form-control" id="color" placeholder="Color" name="color" required>
+              </div>
+              <div class="col-md-12 pt-4" >
+                  <button type="submit" class="btn btn-primary" id="add-task">ADD</button>
+              </div>
+            </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal subtask -->
+{% for task in data %}
+<div class="modal fade" id="subtask-modal-{{task[0]}}" tabindex="-1" aria-labelledby="modal-subtask-label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="modal-subtask-label">Add new task</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          <form id="add-sub-form" method="post" action="/addsubtask/{{task[0]}}">
+              <div class="col-md-8" >
+                <label for="subtask" class="form-label">Subtask</label>
+                <input type="text" class="form-control" id="subtask" placeholder="Subtask" name="subtask" required>
+              </div>
+              <div class="col-md-8" >
+                <label for="description" class="form-label">Description</label>
+                <input type="text" class="form-control" id="description" placeholder="Description" name="description" required>
+              </div>
+              <div class="col-md-12 pt-4" >
+                  <button type="submit" class="btn btn-primary" id="add-subtask">ADD</button>
+              </div>
+            </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#task-modal-{{task[0]}}">Return</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+{% for task in data %}
+<!-- Modal task -->
+<div class="modal fade" id="task-modal-{{task[0]}}" tabindex="-1" aria-labelledby="task-modal-label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="task-modal-label">{{task[1]}}</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <h3 class="fs-5">Status</h3>
+          {% if task[2] == "Pendiente" %}
+          <h4 class="fs-6 btn btn-danger"> {{task[2]}} </h4>
+          {% endif %}
+          {% if task[2] == "En proceso" %}
+          <h4 class="fs-6 btn btn-warning"> {{task[2]}} </h4>
+          {% endif %}
+          {% if task[2] == "Realizada" %}
+          <h4 class="fs-6 btn btn-success"> {{task[2]}} </h4>
+          {% endif %}
+          <hr>
+          <h3 class="fs-5">Subtasks</h3>
+            {% for s in sub %}
+              {% if s[0] == task[0]%}
+              <div class="d-grid gap-2 d-flex">
+                <div class="d-grid p-0">
+                    <h4 class="fs-6 text-primary">-> {{s[1]}}</h4>
+                  <p class="fs-6" >Descripción: {{s[2]}}</p>
+                  <form id="delete-form-subtask" action="/deleteSubtask/{{s[3]}}" method="post">
+                    <button class="btn btn-danger me-sm-4" type="submit">
+                      <i class="fa-solid fa-trash"></i>
+                  </form>
+                  </button>
+                </div>
+              </div>
+              {% endif %}
+            {% endfor %}
+          <div class="d-grid gap-2 d-flex justify-content-end">
+            <h4 class="fs-6">New subtask</h4>
+            <button class="btn btn-primary me-sm-4" type="button" data-bs-toggle="modal" data-bs-target="#subtask-modal-{{task[0]}}">
+              <i class="fa-solid fa-add"></i>
+            </button>
+          </div>
+          <hr>
+          <h3 class="fs-5">Deadline</h3>
+          <h4 class="fs-6"> {{task[3]}} </h4>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <form id="delete-form" action="/deleteTask/{{task[0]}}" method="post" >
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit-modal-{{task[0]}}" onclick="">Edit</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<!-- Modal edit -->
+{% for task in data %}
+<div class="modal fade" id="edit-modal-{{task[0]}}" tabindex="-1" aria-labelledby="modal-edit-label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title fs-5" id="modal-edit-label">Edit task</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          <form id="edit-form" method="post" action="/editTask/{{task[0]}}">
+              <div class="col-md-8" >
+                <label for="task" class="form-label">Task</label>
+                <input type="text" class="form-control" id="task-edit" value="{{task[1]}}" name="task" required>
+              </div>
+              <div class="col-md-8">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" aria-label="Statu select" id="status-edit" name="status">
+                  {% if task[2] == "Pendiente" %}
+                    <option selected>Pendiente</option>
+                  {% else %}
+                    <option >Pendiente</option>
+                  {% endif %}
+                  {% if task[2] == "En proceso" %}
+                    <option selected>En proceso</option>
+                  {% else %}
+                    <option>En proceso</option>
+                  {% endif %}
+                  {% if task[2] == "Realizada" %}
+                    <option selected>Realizada</option>
+                  {% else %}
+                    <option>Realizada</option>
+                  {% endif %}
+                </select>
+              </div>
+              <div class="col-md-8">
+                <label for="deadline" class="form-label">Deadline</label>
+                <input type="date" class="form-control" id="deadline-edit" value="{{task[3]}}" name="deadline" required>
+              </div>
+              <div class="col-md-8">
+                  <label for="tag" class="form-label">Tag</label>
+                  <select class="form-select" aria-label="Tag select" id="tag-edit" name="tag">
+                      <option selected>Select Tag</option>
+                      {% for tag in tags %}
+                        <option>{{tag[1]}}</option>
+                      {% endfor %}
+                  </select>
+              </div>
+              <div class="col-md-12 pt-4" >
+                  <button type="submit" class="btn btn-primary" id="edit-task" >EDIT</button>
+              </div>
+            </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% endblock %}

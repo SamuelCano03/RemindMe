@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block navbar %}
+<ul class="navbar-nav ms-auto">
+    <li class="nav-item">
+      <a class="nav-link text-white" href="{{ url_for('index') }}">
+        <i class="fa-solid fa-house"></i>
+        Inicio
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link active text-white" aria-current="page" href="{{ url_for('about') }}">
+        <i class="fa-solid fa-users"></i>
+        Nosotros
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-white" href="{{ url_for('contact') }}">
+        <i class="fa-solid fa-envelope"></i>
+        Contactanos
+      </a>
+    </li>
+    <li>
+      <form class="d-flex ">
+        <a class="btn btn-primary me-3" href="{{ url_for('login') }}">LOGIN</a>
+        <a class="btn btn-primary me-3" href="{{ url_for('signup') }}">REGISTER</a>
+      </form>
+    </li>
+  </ul>
+{% endblock %}

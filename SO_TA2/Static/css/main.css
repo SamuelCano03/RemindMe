@@ -1,0 +1,11 @@
+#img-upc{
+    width:3rem;
+    height:3rem;
+}
+.navbar-brand{
+    padding-left: 15px;
+}
+.nav-item{
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
