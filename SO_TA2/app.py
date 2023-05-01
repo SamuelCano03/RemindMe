@@ -5,7 +5,6 @@ import mysql.connector
 import pymysql
 from datetime import datetime
 import secrets
-from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(16)
@@ -13,7 +12,7 @@ app.config['SESSION_TYPE'] = 'filesystem'
 Session(app)
 
 conn = pymysql.connect(
-    host='44.204.80.121',
+    host='3.82.153.28',
     user='user1',
     password='SO-SC51',
     database='RemindMeDB'
@@ -44,9 +43,9 @@ def login():
         username = request.form.get("username")
         passw = request.form.get("password")
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM User WHERE  username=%s', (username))
+        cursor.execute('SELECT * FROM User WHERE  username=%s AND password=%s', (username, passw))
         result = cursor.fetchone()
-        if check_password_hash(result[3],passw):
+        if result:
             session["id"] = result[0]
             session["username"] = username
             session["email"] = result[2]
@@ -63,7 +62,7 @@ def signup():
     if request.method == 'POST':
         username = request.form.get('username')
         email = request.form.get('email')
-        passw = generate_password_hash(request.form.get('password'))
+        passw = request.form.get('password')
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM User WHERE username=%s OR email=%s ', (username,email))
         result = cursor.fetchone()
@@ -73,7 +72,7 @@ def signup():
         else:
             cursor.execute('SELECT MAX(idUser) FROM User;')
             result = cursor.fetchone()
-            userId = result[0]+1 if result[0] != None else 0
+            userId = result[0] + 1 if result else 0
             cursor.execute('INSERT INTO User (idUser, username, email, password) VALUES (%s,%s, %s, %s)',
                        (userId, username,email, passw))
             conn.commit()
@@ -107,15 +106,14 @@ def configEdit():
     if request.method == 'POST':
         username = request.form.get('username')
         email = request.form.get('email')
-        password =  request.form.get('password')
-        passwordEncripted =  generate_password_hash(password)
+        password = request.form.get('password')
         cursor = conn.cursor()
         cursor.execute('SELECT * FROM User WHERE username=%s OR email=%s ', (username,email))
         result = cursor.fetchone()
         if result and (username != session["username"] and email != session["email"]):
             return redirect('/config')
         else:
-            cursor.execute('UPDATE User SET username = %s, email = %s, password = %s  WHERE idUser = %s', (username, email, passwordEncripted, session['id']))
+            cursor.execute('UPDATE User SET username = %s, email = %s, password = %s  WHERE idUser = %s', (username, email, password, session['id']))
             session["username"] = username
             session["email"] = email
             session["password"] = password
@@ -150,7 +148,7 @@ def addtask():
 
         cursor.execute('SELECT MAX(idTask) FROM Task;')
         result = cursor.fetchone()
-        idTask = result[0]+1 if result[0] != None else 0
+        idTask = result[0]+1 if result else 0
         if tag_id is not None:
             cursor.execute('INSERT INTO Task (idTask, name, status, date, idUser, idTag) VALUES (%s, %s, %s, %s, %s, %s)',
                         (idTask, task, status, date, session["id"], tag_id))
@@ -168,43 +166,12 @@ def addtag():
         color = request.form.get('color')
 
         cursor = conn.cursor()
-        cursor.execute('SELECT * FROM Tag WHERE name=%s', (tagname))
+        cursor.execute('SELECT MAX(idTag) FROM Tag;')
         result = cursor.fetchone()
-        if not result:
-            cursor.execute('SELECT MAX(idTag) FROM Tag;')
-            result = cursor.fetchone()
-            tag_id = result[0]+1 if result[0] != None else 0
-            cursor.execute('INSERT INTO Tag (idTag, name, idUser,color) VALUES (%s,%s,%s,%s)', (tag_id, tagname, session["id"],color))
-            conn.commit()
-            return redirect('home')
-        else:
-            return redirect('home')
-    else:
+        tag_id = result[0]+1 if result[0] != None else 0
+        cursor.execute('INSERT INTO Tag (idTag, name, idUser) VALUES (%s,%s,%s)', (tag_id, tagname, session["id"]))
+        conn.commit()
         return redirect('home')
-    
-@app.route('/edittag', methods=['POST', 'GET'])
-def edittag():
-    if request.method == 'POST':
-        tag = request.form.get('tag')
-        tagname = request.form.get('tagname')
-        color = request.form.get('color')
-
-        cursor = conn.cursor()
-        cursor.execute('SELECT * FROM Tag WHERE name=%s', (tag))
-        result = cursor.fetchone()
-        if result:
-            idtag= result[0]
-            cursor.execute('SELECT * FROM Tag WHERE name=%s', (tagname))
-            result = cursor.fetchone()
-            if not result or result[1] == tag:
-                cursor.execute('UPDATE Tag SET name = %s, color = %s WHERE idTag = %s',
-                        (tagname, color, idtag))
-                conn.commit()
-                return redirect('home')
-            else:
-                return redirect('home')
-        else:
-                return redirect('home')
     else:
         return redirect('home')
     

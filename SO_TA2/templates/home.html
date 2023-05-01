@@ -28,21 +28,19 @@
 
 {% for task in data %}
   <div class="card text-center">
-    {% if task[5] is not none %}
-      {% for tag in tags %}
-        {% if task[5] == tag[0] %}
-          <div class="card-header mb-3" style="background-color: {{tag[3]}} ">
-            <h4 class="fs-6">
-              {{ tag[1] }}
-            </h4>
-          </div>
-        {% endif %}
-      {% endfor %}
-    {% else %}
-      <div class="card-header mb-3">
+    <div class="card-header bg-secondary mb-3">
+      {% if task[5] is not none %}
+        {% for tag in tags %}
+          {% if task[5] == tag[0] %}
+          <h4 class="fs-6">
+            {{ tag[1] }}
+          </h4>
+          {% endif %}
+        {% endfor %}
+      {% else %}
         <h4 class="fs-6">NO TAG</h4>
-      </div>
-    {% endif %}
+      {% endif %}
+    </div>
     <div class="card-body">
       <h5 class="card-title">{{task[1]}}</h5>
       <a class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#task-modal-{{task[0]}}">Details</a>
@@ -60,7 +58,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <form id="add-task-form" method="post" action="/addtask">
+            <form id="add-form" method="post" action="/addtask">
                 <div class="col-md-8" >
                   <label for="task" class="form-label">Task</label>
                   <input type="text" class="form-control" id="task" placeholder="Tarea" name="task" required>
@@ -106,14 +104,14 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-          <form id="add-tag-form" method="post" action="/addtag">
+          <form id="add-form" method="post" action="/addtag">
               <div class="col-md-8" >
                 <label for="tagname" class="form-label">Tag</label>
                 <input type="text" class="form-control" id="tagname" placeholder="Tag" name="tagname" required>
               </div>
               <div class="col-md-8">
                 <label for="color" class="form-label">Color</label>
-                <input type="color" class="form-control" id="color" name="color" required>
+                <input type="text" class="form-control" id="color" placeholder="Color" name="color" required>
               </div>
               <div class="col-md-12 pt-4" >
                   <button type="submit" class="btn btn-primary" id="add-task">ADD</button>
@@ -122,7 +120,6 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit-modal-tag">Edit tags</button>
       </div>
     </div>
   </div>
@@ -133,7 +130,7 @@
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 class="modal-title fs-5" id="modal-subtask-label">Add new subtask</h2>
+        <h2 class="modal-title fs-5" id="modal-subtask-label">Add new task</h2>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -212,24 +209,24 @@
         <form id="delete-form" action="/deleteTask/{{task[0]}}" method="post" >
           <button type="submit" class="btn btn-danger">Delete</button>
         </form>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit-modal-task-{{task[0]}}">Edit</button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit-modal-{{task[0]}}" onclick="">Edit</button>
       </div>
     </div>
   </div>
 </div>
 {% endfor %}
 
-<!-- Modal task edit -->
+<!-- Modal edit -->
 {% for task in data %}
-<div class="modal fade" id="edit-modal-task-{{task[0]}}" tabindex="-1" aria-labelledby="modal-edit-task-label" aria-hidden="true">
+<div class="modal fade" id="edit-modal-{{task[0]}}" tabindex="-1" aria-labelledby="modal-edit-label" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h2 class="modal-title fs-5" id="modal-edit-task-label">Edit task</h2>
+        <h2 class="modal-title fs-5" id="modal-edit-label">Edit task</h2>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-          <form id="edit-task-form" method="post" action="/editTask/{{task[0]}}">
+          <form id="edit-form" method="post" action="/editTask/{{task[0]}}">
               <div class="col-md-8" >
                 <label for="task" class="form-label">Task</label>
                 <input type="text" class="form-control" id="task-edit" value="{{task[1]}}" name="task" required>
@@ -278,44 +275,5 @@
     </div>
   </div>
 </div>
-
-<!-- Modal tag edit-->
-<div class="modal fade" id="edit-modal-tag" tabindex="-1" aria-labelledby="modal-edit-tag-label" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 class="modal-title fs-5" id="modal-edit-tag-label">Edit Tag</h2>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-          <form id="edit-tag-form" method="post" action="/edittag">
-            <div class="col-md-8">
-              <label for="tag" class="form-label">Tag</label>
-              <select class="form-select" aria-label="Tag select" id="tag-edited" name="tag">
-                  {% for tag in tags %}
-                  <option>{{tag[1]}}</option>
-                  {% endfor %}
-              </select>
-          </div>
-              <div class="col-md-8" >
-                <label for="tagname" class="form-label">Tag</label>
-                <input type="text" class="form-control" id="tagname-edit-tag" placeholder="Tag" name="tagname" required>
-              </div>
-              <div class="col-md-8">
-                <label for="color" class="form-label">Color</label>
-                <input type="color" class="form-control" id="color-edit-tag" name="color" required>
-              </div>
-              <div class="col-md-12 pt-4" >
-                  <button type="submit" class="btn btn-primary" id="edit-tag">Edit</button>
-              </div>
-            </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
 {% endfor %}
-
 {% endblock %}
