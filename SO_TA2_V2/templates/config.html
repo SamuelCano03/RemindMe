@@ -1,0 +1,109 @@
+{% extends "layouthome.html" %}
+{% block navbar %}
+<ul class="navbar-nav ms-auto">
+    <li class="nav-item">
+        <a class="nav-link text-white" href="{{ url_for('config') }}">
+          <i class="fa-solid fa-user"></i>
+          {{session['username']}}
+        </a>
+    </li>
+    <li>
+        <form class="d-flex ">
+          <a class="btn btn-danger me-3" href="{{ url_for('logout') }}">Log out</a>
+        </form>
+    </li>
+</ul>
+{% endblock %}
+{% block content %}
+<div class="container mt-5 bg-light p-4">
+    <div class="col-4" >
+        <h4 class="fs-4 d-inline-block">Username: </h4>
+        <div>
+            <input type="text" class="fs-5 text-primary" value="{{session['username']}}" disabled readonly>
+        </div>
+        
+    </div>
+    <hr>
+    <div class="col-4">
+        <h4 class="fs-4 d-inline-block">Email: </h4>
+        <div>
+            <input type="text" class="fs-5 text-primary" value="{{session['email']}}" disabled readonly>
+        </div>
+    </div>
+    <hr>
+    <div class="col-4">
+        <h4 class="fs-4 d-inline-block">Password: </h4>
+        <div class="input-group">
+            <input type="password" class="fs-5 text-primary" value="{{session['password']}}" id="passwordConfig" disabled readonly>
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="button" onclick="mostrarPassword('passwordConfig')"> <span class="fa fa-eye-slash icon"></span> </button>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+        <button class="btn btn-primary me-md-2" data-bs-toggle="modal" data-bs-target="#edit-modal-user" type="button">Edit</button>
+        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#delete-modal-user" type="button">Delete</button>
+    </div>
+</div>
+
+<!-- Modal edit -->
+<div class="modal fade" id="edit-modal-user" tabindex="-1" aria-labelledby="modal-edit-user-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="modal-edit-user-label">Edit information</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form id="edit-user-form" method="post" action="/configEdit">
+                <div class="col-md-8" >
+                  <label for="username" class="form-label">Username</label>
+                  <input type="text" class="form-control" id="username-edit" value="{{session['username']}}" name="username" required>
+                </div>
+                <div class="col-md-8">
+                  <label for="email" class="form-label">Email</label>
+                  <input type="email" class="form-control" id="email-edit" value="{{session['email']}}" name="email" required>
+                </div>
+                <div class="col-md-8">
+                  <label for="password" class="form-label">Password</label>
+                  <div class="input-group">
+                    <input type="password" class="form-control" id="password-edit" value="{{session['password']}}" name="password" required>
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" type="button" onclick="mostrarPassword('password-edit')"> <span class="fa fa-eye-slash icon"></span> </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-12 pt-4" >
+                    <button type="submit" class="btn btn-primary" id="edit-user" >EDIT</button>
+                </div>
+              </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
+<!-- Modal delete -->
+<div class="modal fade" id="delete-modal-user" tabindex="-1" aria-labelledby="modal-delete-user-label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title fs-5" id="modal-delete-user-label">Delete</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <p class="fs-3"> Realmente deseas eliminar tu cuenta, no podras recuperarla</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <form id="delete-user-form" action="/configDelete" method="post" >
+            <button type="submit" class="btn btn-danger">Delete</button>
+          </form>
+        </div>
+      </div>
+    </div>
+</div>
+
+{% endblock %}
