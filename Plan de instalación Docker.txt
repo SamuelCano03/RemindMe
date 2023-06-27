@@ -1,0 +1,52 @@
+//PLAN DE INSTALACIÓN DE DOCKER
+
+sudo apt update -y
+sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+apt-cache policy docker-ce
+sudo apt install docker-ce -y
+sudo systemctl enable --now docker
+
+//IMPORTANTE: no activar mysql sino habrá PELEA DE PUERTOS UWU
+-->> en caso haya errores:
+//sudo service mysql stop
+
+
+//Ejecutar sin sudo (Dios)
+sudo passwd ubuntu //stablish your pass
+sudo usermod -aG docker ${USER}
+su - ${USER}
+
+//docker ultima ver del profe
+docker run \
+--detach \
+--name=docker-db \
+--env="MYSQL_ROOT_PASSWORD=SO-SC51" \
+--publish 3306:3306 \
+--volume=/home/ubuntu/data:/var/lib/mysql \
+mysql
+
+docker start [iddocker]
+docker exec -it [id docker] bash
+mysql -u root -p
+
+CREATE USER 'user1'@'%' IDENTIFIED BY 'SO-SC51';
+GRANT ALL PRIVILEGES ON *.* TO 'user1'@'%' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+
+
+//para instalar zsh
+sudo apt install zsh
+sh -c "$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
+//personalización
+
+
+//Ejecutar sin sudo
+sudo -i
+
+
+
+
+
+
